@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
-use futures::{sync::mpsc, Future, Stream};
+use futures::{sync::mpsc, Future, Stream, stream::FuturesUnordered};
 
 use opentracing_rs_core::Tag;
 
@@ -135,5 +135,16 @@ impl TracerBuilder {
         tokio::spawn(tracer_serve);
 
         tracer
+    }
+
+    pub fn build(self) -> (Tracer, impl Future<Item=(), Error=()> ){
+        let (tracer, tracer_serve) = Tracer::new(self.sampler.unwrap(), self.reporter.unwrap());
+
+        let mut serve = FuturesUnordered::<Box<dyn Future<Item=(),Error=()>>>::new();
+
+        serve.push(Box::new(self.reporter_serve.unwrap()));
+        serve.push(Box::new(tracer_serve));
+
+        (tracer, serve.into_future().then(|_| Ok::<(),()>(())))
     }
 }
