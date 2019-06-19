@@ -25,6 +25,13 @@ impl TraceId {
     }
 }
 
+impl ToString for TraceId {
+    fn to_string(&self) -> String {
+        let num: u128 = u128::from(self.low) + (u128::from(self.high) << 64);
+        format!("{:x}", num)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct SpanState {
     pub(crate) trace_id: TraceId,
@@ -50,6 +57,14 @@ impl SpanState {
             parent_span_id: Some(parent.span_id),
             is_sampled: parent.is_sampled,
         }
+    }
+
+    pub fn uber_trace_id(&self) -> String {
+        format!("{}:{:x}:{:x}:{}",
+                self.trace_id.to_string(),
+                self.span_id,
+                self.parent_span_id.unwrap_or(0),
+                if self.is_sampled { 1 } else { 0 })
     }
 }
 
