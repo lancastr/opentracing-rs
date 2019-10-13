@@ -28,7 +28,7 @@ impl TraceId {
 impl ToString for TraceId {
     fn to_string(&self) -> String {
         let num: u128 = u128::from(self.low) + (u128::from(self.high) << 64);
-        format!("{:x}", num)
+        format!("{:032x}", num)
     }
 }
 
