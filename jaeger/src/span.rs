@@ -18,9 +18,15 @@ pub struct TraceId {
 
 impl TraceId {
     pub fn new() -> Self {
-        Self {
-            low: rand::random(),
-            high: rand::random(),
+        loop {
+            let low = rand::random();
+            let high = rand::random();
+            if low > 0 && high > 0 {
+                return Self {
+                    low,
+                    high,
+                }
+            }
         }
     }
 }
