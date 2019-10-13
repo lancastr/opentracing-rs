@@ -60,11 +60,12 @@ impl SpanState {
     }
 
     pub fn uber_trace_id(&self) -> String {
-        format!("{}:{:x}:{:x}:{}",
+        let flags = if self.is_sampled { 1 } else { 0 };
+        format!("{}:{:x}:{:x}:{:02x}",
                 self.trace_id.to_string(),
                 self.span_id,
                 self.parent_span_id.unwrap_or(0),
-                if self.is_sampled { 1 } else { 0 })
+                flags)
     }
 }
 
